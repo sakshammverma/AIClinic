@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Medical Recommendation System</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-300" x-data="{ darkMode: false }">
+    <nav class="bg-white dark:bg-gray-800 shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <img class="h-8 w-auto" src="/placeholder.svg?height=32&width=32" alt="Logo">
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="#" class="border-blue-500 text-gray-900 dark:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Home
+                        </a>
+                        <a href="#" class="border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            About
+                        </a>
+                        <a href="#" class="border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Contact
+                        </a>
+                        <a href="#" class="border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Blog
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <button @click="darkMode = !darkMode" class="bg-gray-200 dark:bg-gray-700 rounded-full w-12 h-6 transition duration-300 ease-in-out focus:outline-none shadow-md">
+                        <div class="bg-white dark:bg-gray-400 w-6 h-6 rounded-full shadow-md transform transition-transform duration-300 ease-in-out" :class="{ 'translate-x-6': darkMode }"></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="px-4 py-6 sm:px-0">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">AI Medical Recommendation System</h1>
+            
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg divide-y divide-gray-200 dark:divide-gray-700">
+                <div class="px-4 py-5 sm:p-6">
+                    <form id="symptomForm" class="space-y-4">
+                        <div>
+                            <label for="symptoms" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Symptoms</label>
+                            <div class="mt-1 relative rounded-md shadow-sm">
+                                <input type="text" name="symptoms" id="symptoms" class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-3 pr-12 sm:text-sm border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Enter symptoms separated by commas">
+                                <div class="absolute inset-y-0 right-0 flex items-center">
+                                    <button type="button" id="speechRecognition" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" title="Use speech recognition">
+                                        <i class="fas fa-microphone"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Predict
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div id="results" class="px-4 py-5 sm:p-6 hidden">
+                    <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Results</h2>
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        <div class="bg-white dark:bg-gray-700 overflow-hidden shadow rounded-lg">
+                            <div class="px-4 py-5 sm:p-6">
+                                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                                    <i class="fas fa-stethoscope mr-2"></i>Disease
+                                </h3>
+                                <p id="disease" class="text-sm text-gray-500 dark:text-gray-300"></p>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-700 overflow-hidden shadow rounded-lg">
+                            <div class="px-4 py-5 sm:p-6">
+                                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                                    <i class="fas fa-info-circle mr-2"></i>Description
+                                </h3>
+                                <p id="description" class="text-sm text-gray-500 dark:text-gray-300"></p>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-700 overflow-hidden shadow rounded-lg">
+                            <div class="px-4 py-5 sm:p-6">
+                                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                                    <i class="fas fa-shield-alt mr-2"></i>Precautions
+                                </h3>
+                                <ul id="precautions" class="text-sm text-gray-500 dark:text-gray-300 list-disc list-inside"></ul>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-700 overflow-hidden shadow rounded-lg">
+                            <div class="px-4 py-5 sm:p-6">
+                                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                                    <i class="fas fa-pills mr-2"></i>Medications
+                                </h3>
+                                <ul id="medications" class="text-sm text-gray-500 dark:text-gray-300 list-disc list-inside"></ul>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-700 overflow-hidden shadow rounded-lg">
+                            <div class="px-4 py-5 sm:p-6">
+                                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                                    <i class="fas fa-dumbbell mr-2"></i>Workouts
+                                </h3>
+                                <ul id="workouts" class="text-sm text-gray-500 dark:text-gray-300 list-disc list-inside"></ul>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-700 overflow-hidden shadow rounded-lg">
+                            <div class="px-4 py-5 sm:p-6">
+                                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                                    <i class="fas fa-utensils mr-2"></i>Diets
+                                </h3>
+                                <ul id="diets" class="text-sm text-gray-500 dark:text-gray-300 list-disc list-inside"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white dark:bg-gray-800 shadow-lg mt-8">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center">
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                    &copy; 2023 AI Medical Recommendation System. All rights reserved.
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
+                        <span class="sr-only">Facebook</span>
+                        <i class="fab fa-facebook"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
+                        <span class="sr-only">Twitter</span>
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
+                        <span class="sr-only">LinkedIn</span>
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
