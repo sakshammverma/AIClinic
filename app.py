@@ -5,50 +5,39 @@ import numpy as np
 import os
 
 app = Flask(__name__)
-
-# Configure directories
+ 
 MODEL_DIR = 'models'
 DATA_DIR = 'datasets'
 
-# ---------------------------------------------------
-# Load Mapping and CSV Data at Application Startup
-# ---------------------------------------------------
-
-# Load the symptom and disease mappings generated via generate_mapping.py
+ 
 try:
     mapping_path = os.path.join(MODEL_DIR, 'symptom_mapping.pkl')
     with open(mapping_path, 'rb') as f:
         mappings = pickle.load(f)
-        symptoms_dict = mappings['symptoms_dict']   # e.g., {'chills': 0, 'vomiting': 1, ...}
-        disease_dict = mappings['disease_dict']       # e.g., {'typhoid': 0, 'hepatitis a': 1, ...}
+        symptoms_dict = mappings['symptoms_dict']   
+        disease_dict = mappings['disease_dict']       
 except Exception as e:
     print("Error loading mapping file:", str(e))
     raise
-
-# Load the CSV that lists diseases and their symptoms.
-# Assumes CSV format: id,disease,symptom1,symptom2, ... 
+ 
 symptoms_csv_path = 'C:/Users/saksh/OneDrive/Desktop/AIClinic/datasets/symptoms_df.csv'
 
 symptoms_df = pd.read_csv(symptoms_csv_path, header=None)
 num_symptoms = symptoms_df.shape[1] - 2  # Exclude id and disease columns
 column_names = ['id', 'disease'] + [f'symptom{i+1}' for i in range(num_symptoms)]
 symptoms_df.columns = column_names
-# Normalize disease names and symptoms to lower case and strip extra spaces.
+ 
 symptoms_df['disease'] = symptoms_df['disease'].str.strip().str.lower()
 for col in column_names[2:]:
     symptoms_df[col] = symptoms_df[col].astype(str).str.strip().str.lower()
 
-# Load additional CSV files containing extra disease information.
+ 
 description = pd.read_csv(os.path.join(DATA_DIR, 'description.csv'))
 precautions = pd.read_csv(os.path.join(DATA_DIR, 'precautions_df.csv'))
 medications = pd.read_csv(os.path.join(DATA_DIR, 'medications.csv'))
 diets = pd.read_csv(os.path.join(DATA_DIR, 'diets.csv'))
 workout = pd.read_csv(os.path.join(DATA_DIR, 'workout_df.csv'))
-
-# ---------------------------------------------------
-# Utility Functions
-# ---------------------------------------------------
-
+ 
 def get_disease_info(disease_name):
     """
     Retrieve extra information for a given disease from the CSV datasets.
@@ -64,7 +53,7 @@ def get_disease_info(disease_name):
         # Get precautions (assuming the first column is 'Disease')
         prec_row = precautions[precautions['Disease'].str.lower() == disease_lower]
         if not prec_row.empty:
-            # Exclude the 'Disease' column and drop NaN values.
+         
             prec = prec_row.iloc[0, 1:].dropna().tolist()
         else:
             prec = ["No precautions available."]
@@ -111,10 +100,7 @@ def simple_predict(patient_symptoms):
             predicted_disease = row['disease']
     
     return predicted_disease
-
-# ---------------------------------------------------
-# Flask Routes
-# ---------------------------------------------------
+ 
 
 @app.route('/')
 def home():
@@ -139,8 +125,7 @@ def predict():
         
         if not predicted_disease:
             return jsonify({"error": "No matching disease found"}), 400
-
-        # Get extra information about the predicted disease
+ 
         disease_info = get_disease_info(predicted_disease)
         
         return jsonify({
@@ -156,8 +141,7 @@ def predict():
         print("Error in prediction:", str(e))
         return jsonify({"error": "An error occurred while processing the prediction."}), 500
 
-# ---------------------------------------------------
-# Run the Application
-# ---------------------------------------------------
+ 
 if __name__ == '__main__':
     app.run(debug=True)
+
